@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "durnotify",
+  "version": "${version}",
+  "name": "DurNotify",
+  "description": "Don't lose your items!",
+  "authors": [
+    "Icetang0123"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/durnotify/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "kr.icetang0123.durnotify.client.DurNotifyClient"
+    ]
+  },
+  "mixins": [
+    "DurNotify.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.6",
+    "fabric": "*",
+    "minecraft": "1.19.2"
+  }
+}
