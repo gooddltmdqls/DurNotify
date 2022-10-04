@@ -4,24 +4,14 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtType;
-import net.minecraft.nbt.scanner.NbtScanner;
-import net.minecraft.nbt.visitor.NbtElementVisitor;
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class DurNotifyClient implements ClientModInitializer {
@@ -46,9 +36,7 @@ public class DurNotifyClient implements ClientModInitializer {
             NbtCompound nbt3 = arm3.getNbt();
             NbtCompound nbt4 = arm4.getNbt();
 
-            if (nbt == null || nbt1 == null || nbt2 == null || nbt3 == null || nbt4 == null) return;
-
-            if (item.isDamageable() && (item.getItem().getMaxDamage() - item.getDamage()) <= 50 && !nbt.getBoolean("notified")) {
+            if (item.isDamageable() && nbt != null && (item.getItem().getMaxDamage() - item.getDamage()) <= getLowDurValue(item) && !nbt.getBoolean("notified")) {
                 e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
 
                 e.player.sendMessage(Text.translatable("title.durnotify.warn").formatted(Formatting.RED), true);
@@ -56,13 +44,13 @@ public class DurNotifyClient implements ClientModInitializer {
                 nbt.putBoolean("notified", true);
 
                 item.setNbt(nbt);
-            } else if (item.isDamageable() && (item.getItem().getMaxDamage() - item.getDamage()) > 50) {
+            } else if (item.isDamageable() && nbt != null && (item.getItem().getMaxDamage() - item.getDamage()) > getLowDurValue(item)) {
                 nbt.putBoolean("notified", false);
 
                 item.setNbt(nbt);
             }
 
-            if (arm1.isDamageable() && (arm1.getItem().getMaxDamage() - arm1.getDamage()) <= 50 && !nbt1.getBoolean("notified")) {
+            if (arm1.isDamageable() && nbt1 != null && (arm1.getItem().getMaxDamage() - arm1.getDamage()) <= getLowDurValue(arm1) && !nbt1.getBoolean("notified")) {
                 e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
 
                 e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
@@ -70,13 +58,13 @@ public class DurNotifyClient implements ClientModInitializer {
                 nbt1.putBoolean("notified", true);
 
                 arm1.setNbt(nbt1);
-            } else if (arm1.isDamageable() && (arm1.getItem().getMaxDamage() - arm1.getDamage()) > 50) {
+            } else if (arm1.isDamageable() && nbt1 != null && (arm1.getItem().getMaxDamage() - arm1.getDamage()) > getLowDurValue(arm1)) {
                 nbt1.putBoolean("notified", false);
 
                 arm1.setNbt(nbt1);
             }
 
-            if (arm2.isDamageable() && (arm2.getItem().getMaxDamage() - arm2.getDamage()) <= 50 && !nbt2.getBoolean("notified")) {
+            if (arm2.isDamageable() && nbt2 != null && (arm2.getItem().getMaxDamage() - arm2.getDamage()) <= getLowDurValue(arm2) && !nbt2.getBoolean("notified")) {
                 e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
 
                 e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
@@ -84,13 +72,13 @@ public class DurNotifyClient implements ClientModInitializer {
                 nbt2.putBoolean("notified", true);
 
                 arm2.setNbt(nbt1);
-            } else if (arm2.isDamageable() && (arm2.getItem().getMaxDamage() - arm2.getDamage()) > 50) {
+            } else if (arm2.isDamageable() && nbt2 != null &&(arm2.getItem().getMaxDamage() - arm2.getDamage()) > getLowDurValue(arm2)) {
                 nbt2.putBoolean("notified", false);
 
                 arm2.setNbt(nbt2);
             }
 
-            if (arm3.isDamageable() && (arm3.getItem().getMaxDamage() - arm3.getDamage()) <= 50 && !nbt3.getBoolean("notified")) {
+            if (arm3.isDamageable() && nbt3 != null && (arm3.getItem().getMaxDamage() - arm3.getDamage()) <= getLowDurValue(arm3) && !nbt3.getBoolean("notified")) {
                 e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
 
                 e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
@@ -98,13 +86,13 @@ public class DurNotifyClient implements ClientModInitializer {
                 nbt3.putBoolean("notified", true);
 
                 arm3.setNbt(nbt3);
-            } else if (arm3.isDamageable() && (arm3.getItem().getMaxDamage() - arm3.getDamage()) > 50) {
+            } else if (arm3.isDamageable() && nbt3 != null && (arm3.getItem().getMaxDamage() - arm3.getDamage()) > getLowDurValue(arm3)) {
                 nbt3.putBoolean("notified", false);
 
                 arm3.setNbt(nbt3);
             }
 
-            if (arm4.isDamageable() && (arm4.getItem().getMaxDamage() - arm4.getDamage()) <= 50 && !nbt4.getBoolean("notified")) {
+            if (arm4.isDamageable() && nbt4 != null && (arm4.getItem().getMaxDamage() - arm4.getDamage()) <= getLowDurValue(arm4) && !nbt4.getBoolean("notified")) {
                 e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
 
                 e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
@@ -112,11 +100,20 @@ public class DurNotifyClient implements ClientModInitializer {
                 nbt4.putBoolean("notified", true);
 
                 arm4.setNbt(nbt1);
-            } else if (arm4.isDamageable() && (arm4.getItem().getMaxDamage() - arm4.getDamage()) > 50) {
+            } else if (arm4.isDamageable() && nbt4 != null && (arm4.getItem().getMaxDamage() - arm4.getDamage()) > getLowDurValue(arm4)) {
                 nbt4.putBoolean("notified", false);
 
                 arm4.setNbt(nbt4);
             }
         });
+    }
+
+    private int getLowDurValue(ItemStack stack) {
+        int maxDamage = stack.getItem().getMaxDamage();
+
+        if (maxDamage < 50) return 15;
+        if (maxDamage < 100) return 50;
+        if (maxDamage < 200) return 100;
+        else return 150;
     }
 }
