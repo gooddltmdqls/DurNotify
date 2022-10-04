@@ -18,7 +18,7 @@ public class DurNotifyClient implements ClientModInitializer {
     public Logger LOGGER = LoggerFactory.getLogger(DurNotifyClient.class);
     @Override
     public void onInitializeClient() {
-        LOGGER.info("DurNotify have been initialized!");
+        LOGGER.info("DurNotify have been initialized");
 
         ClientTickEvents.END_CLIENT_TICK.register(e -> {
             if (e.world == null) return;
