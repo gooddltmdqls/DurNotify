@@ -1,4 +1,5 @@
 {
   "title.durnotify.warn": "내구도가 낮습니다!",
-  "title.durnotify.warn_armor": "갑옷의 내구도가 낮습니다!"
+  "title.durnotify.warn_armor": "갑옷의 내구도가 낮습니다!",
+  "title.durnotify.new_ver": "앗! 야생의 새로운 DurNotify(이)가 나타났다! Modrinth 에서 다운로드하자! %s"
 }

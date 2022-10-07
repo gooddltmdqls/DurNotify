@@ -1,11 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "kr.icetang0123.durnotify.mixin",
+  "package": "kr.icetang0123.durnotify.client.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
   "client": [
+    "PlayerJoinMixin"
   ],
   "injectors": {
     "defaultRequire": 1

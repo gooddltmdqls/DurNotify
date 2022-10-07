@@ -1,4 +1,5 @@
 {
   "title.durnotify.warn": "Low dur!",
-  "title.durnotify.warn_armor": "Low dur: arms!"
+  "title.durnotify.warn_armor": "Low dur: arms!",
+  "title.durnotify.new_ver": "A wild new version of DurNotify appeared! Download it from Modrinth! %s"
 }

@@ -1,5 +1,6 @@
 package kr.icetang0123.durnotify.client;
 
+import com.google.gson.Gson;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -10,11 +11,34 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
+import java.util.Map;
+
 @Environment(EnvType.CLIENT)
 public class DurNotifyClient implements ClientModInitializer {
+    public static final String LATEST_RELEASE;
+    public static final String LATEST_BETA;
+    public static final String LATEST_ALPHA;
+
+    public static final String CURRENT_VERSION = "1.0.2";
+
+    static {
+        try {
+            LATEST_RELEASE = getLatestRelease();
+            LATEST_BETA = getLatestBeta();
+            LATEST_ALPHA = getLatestAlpha();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final String MODRINTH_API_ROUTE = "https://api.modrinth.com/v2/";
+    private static final String MOD_SLUG = "dur-notify";
     public Logger LOGGER = LoggerFactory.getLogger(DurNotifyClient.class);
     @Override
     public void onInitializeClient() {
@@ -71,7 +95,7 @@ public class DurNotifyClient implements ClientModInitializer {
 
                 nbt2.putBoolean("notified", true);
 
-                arm2.setNbt(nbt1);
+                arm2.setNbt(nbt2);
             } else if (arm2.isDamageable() && nbt2 != null &&(arm2.getItem().getMaxDamage() - arm2.getDamage()) > getLowDurValue(arm2)) {
                 nbt2.putBoolean("notified", false);
 
@@ -99,7 +123,7 @@ public class DurNotifyClient implements ClientModInitializer {
 
                 nbt4.putBoolean("notified", true);
 
-                arm4.setNbt(nbt1);
+                arm4.setNbt(nbt4);
             } else if (arm4.isDamageable() && nbt4 != null && (arm4.getItem().getMaxDamage() - arm4.getDamage()) > getLowDurValue(arm4)) {
                 nbt4.putBoolean("notified", false);
 
@@ -115,5 +139,98 @@ public class DurNotifyClient implements ClientModInitializer {
         if (maxDamage < 100) return 50;
         if (maxDamage < 200) return 100;
         else return 150;
+    }
+
+    private static String getLatestRelease() throws IOException {
+        String url = MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request.Builder builder = new Request.Builder().url(url).get();
+        builder.addHeader("Content-Type", "application/json");
+
+        Request req = builder.build();
+
+        Response res = client.newCall(req).execute();
+
+        if (res.isSuccessful()) {
+            ResponseBody body = res.body();
+
+            if (body == null) return null;
+
+            Gson gson = new Gson();
+
+             java.util.List map = gson.fromJson(body.string(), java.util.List.class);
+
+            for (Object ver : map) {
+                if (ver instanceof Map version) {
+                    if (version.get("version_type").equals("release")) return (String) version.get("version_number");
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static String getLatestBeta() throws IOException {
+        String url = MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request.Builder builder = new Request.Builder().url(url).get();
+        builder.addHeader("Content-Type", "application/json");
+
+        Request req = builder.build();
+
+        Response res = client.newCall(req).execute();
+
+        if (res.isSuccessful()) {
+            ResponseBody body = res.body();
+
+            if (body == null) return null;
+
+            Gson gson = new Gson();
+
+            java.util.List map = gson.fromJson(body.string(), java.util.List.class);
+
+            for (Object ver : map) {
+                if (ver instanceof Map version) {
+                    if (version.get("version_type").equals("beta")) return (String) version.get("version_number");
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static String getLatestAlpha() throws IOException {
+        String url = MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request.Builder builder = new Request.Builder().url(url).get();
+        builder.addHeader("Content-Type", "application/json");
+
+        Request req = builder.build();
+
+        Response res = client.newCall(req).execute();
+
+        if (res.isSuccessful()) {
+            ResponseBody body = res.body();
+
+            if (body == null) return null;
+
+            Gson gson = new Gson();
+
+            java.util.List map = gson.fromJson(body.string(), java.util.List.class);
+
+            for (Object ver : map) {
+                if (ver instanceof Map version) {
+                    if (version.get("version_type").equals("alpha")) return (String) version.get("version_number");
+                }
+            }
+        }
+
+        return null;
     }
 }
