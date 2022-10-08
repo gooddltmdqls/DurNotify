@@ -11,11 +11,12 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
@@ -39,7 +40,7 @@ public class DurNotifyClient implements ClientModInitializer {
 
     private static final String MODRINTH_API_ROUTE = "https://api.modrinth.com/v2/";
     private static final String MOD_SLUG = "dur-notify";
-    public Logger LOGGER = LoggerFactory.getLogger(DurNotifyClient.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DurNotifyClient.class);
     @Override
     public void onInitializeClient() {
         LOGGER.info("DurNotify have been initialized");
@@ -142,25 +143,26 @@ public class DurNotifyClient implements ClientModInitializer {
     }
 
     private static String getLatestRelease() throws IOException {
-        String url = MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version";
+        URL url = new URL(MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version");
 
-        OkHttpClient client = new OkHttpClient();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-        Request.Builder builder = new Request.Builder().url(url).get();
-        builder.addHeader("Content-Type", "application/json");
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
 
-        Request req = builder.build();
+        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        StringBuilder sb = new StringBuilder();
+        String line;
 
-        Response res = client.newCall(req).execute();
+        while((line = br.readLine()) != null) {
+            sb.append(line);
+        }
 
-        if (res.isSuccessful()) {
-            ResponseBody body = res.body();
-
-            if (body == null) return null;
-
+        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
 
-             java.util.List map = gson.fromJson(body.string(), java.util.List.class);
+             java.util.List map = gson.fromJson(sb.toString(), java.util.List.class);
 
             for (Object ver : map) {
                 if (ver instanceof Map version) {
@@ -173,25 +175,26 @@ public class DurNotifyClient implements ClientModInitializer {
     }
 
     private static String getLatestBeta() throws IOException {
-        String url = MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version";
+        URL url = new URL(MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version");
 
-        OkHttpClient client = new OkHttpClient();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-        Request.Builder builder = new Request.Builder().url(url).get();
-        builder.addHeader("Content-Type", "application/json");
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
 
-        Request req = builder.build();
+        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        StringBuilder sb = new StringBuilder();
+        String line;
 
-        Response res = client.newCall(req).execute();
+        while((line = br.readLine()) != null) {
+            sb.append(line);
+        }
 
-        if (res.isSuccessful()) {
-            ResponseBody body = res.body();
-
-            if (body == null) return null;
-
+        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
 
-            java.util.List map = gson.fromJson(body.string(), java.util.List.class);
+            java.util.List map = gson.fromJson(sb.toString(), java.util.List.class);
 
             for (Object ver : map) {
                 if (ver instanceof Map version) {
@@ -204,25 +207,26 @@ public class DurNotifyClient implements ClientModInitializer {
     }
 
     private static String getLatestAlpha() throws IOException {
-        String url = MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version";
+        URL url = new URL(MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version");
 
-        OkHttpClient client = new OkHttpClient();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-        Request.Builder builder = new Request.Builder().url(url).get();
-        builder.addHeader("Content-Type", "application/json");
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
 
-        Request req = builder.build();
+        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        StringBuilder sb = new StringBuilder();
+        String line;
 
-        Response res = client.newCall(req).execute();
+        while((line = br.readLine()) != null) {
+            sb.append(line);
+        }
 
-        if (res.isSuccessful()) {
-            ResponseBody body = res.body();
-
-            if (body == null) return null;
-
+        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
             Gson gson = new Gson();
 
-            java.util.List map = gson.fromJson(body.string(), java.util.List.class);
+            java.util.List map = gson.fromJson(sb.toString(), java.util.List.class);
 
             for (Object ver : map) {
                 if (ver instanceof Map version) {

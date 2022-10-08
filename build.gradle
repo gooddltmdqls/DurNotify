@@ -1,4 +1,5 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
 }
@@ -18,8 +19,6 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-    implementation "com.squareup.okhttp3:okhttp:4.10.0"
 }
 
 processResources {
@@ -55,12 +54,10 @@ java {
     withSourcesJar()
 }
 
-task createProperties {
-    doLast {
-        def version = project.version.toString()
-        def file = new File("$buildDir/resources/main/version.txt")
-        file.write(version)
-    }
+shadowJar {
+    archiveBaseName.set('shadow')
+    archiveClassifier.set('')
+    archiveVersion.set('')
 }
 
 jar {
@@ -68,7 +65,7 @@ jar {
         rename { "${it}_${project.archivesBaseName}" }
     }
 
-    dependsOn createProperties
+    dependsOn shadowJar
 }
 
 // configure the maven publication

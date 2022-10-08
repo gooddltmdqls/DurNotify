@@ -29,16 +29,18 @@ public class PlayerJoinMixin {
 
         String currentVer = DurNotifyClient.CURRENT_VERSION;
 
-        if ((latestRelease != null && !latestRelease.equals(currentVer)) && (latestBeta != null && !latestBeta.equals(currentVer)) && (latestAlpha != null && !latestAlpha.equals(currentVer))) {
-            Timer timer = new Timer();
+        if (latestRelease != null && latestRelease.equals(currentVer)) return;
+        if (latestBeta != null && latestBeta.equals(currentVer)) return;
+        if (latestAlpha != null && latestAlpha.equals(currentVer)) return;
 
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    assert MinecraftClient.getInstance().player != null;
-                    MinecraftClient.getInstance().player.sendMessage(Text.translatable("title.durnotify.new_ver", Text.of("https://modrinth.com/project/dur-notify").copy().setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/project/dur-notify")).withUnderline(true))));
-                }
-            }, 5000);
-        }
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                assert MinecraftClient.getInstance().player != null;
+                MinecraftClient.getInstance().player.sendMessage(Text.translatable("title.durnotify.new_ver", Text.of("https://modrinth.com/project/dur-notify").copy().setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/project/dur-notify")).withUnderline(true))));
+            }
+        }, 5000);
     }
 }
