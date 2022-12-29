@@ -1,6 +1,9 @@
 package kr.icetang0123.durnotify.client;
 
 import com.google.gson.Gson;
+import kr.icetang0123.durnotify.client.config.ConfigSerializer;
+import kr.icetang0123.durnotify.client.utils.Util;
+import kr.icetang0123.durnotify.client.utils.Version;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -9,6 +12,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
@@ -17,21 +22,18 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class DurNotifyClient implements ClientModInitializer {
     public static final String LATEST_RELEASE;
-    public static final String LATEST_BETA;
-    public static final String LATEST_ALPHA;
 
-    public static final String CURRENT_VERSION = "1.0.2";
+    public static final String CURRENT_VERSION = "1.1.0";
 
     static {
         try {
             LATEST_RELEASE = getLatestRelease();
-            LATEST_BETA = getLatestBeta();
-            LATEST_ALPHA = getLatestAlpha();
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -41,8 +43,13 @@ public class DurNotifyClient implements ClientModInitializer {
     private static final String MODRINTH_API_ROUTE = "https://api.modrinth.com/v2/";
     private static final String MOD_SLUG = "dur-notify";
     public static final Logger LOGGER = LoggerFactory.getLogger(DurNotifyClient.class);
+
+    public final ConfigSerializer serializer = new ConfigSerializer();
+
     @Override
     public void onInitializeClient() {
+        final boolean[] updateNotified = {false};
+
         LOGGER.info("DurNotify have been initialized");
 
         ClientTickEvents.END_CLIENT_TICK.register(e -> {
@@ -50,21 +57,25 @@ public class DurNotifyClient implements ClientModInitializer {
 
             assert e.player != null;
             ItemStack item = e.player.getInventory().getMainHandStack();
-            ItemStack arm1 = e.player.getInventory().armor.get(0);
-            ItemStack arm2 = e.player.getInventory().armor.get(1);
-            ItemStack arm3 = e.player.getInventory().armor.get(2);
-            ItemStack arm4 = e.player.getInventory().armor.get(3);
+            List<ItemStack> armor = e.player.getInventory().armor;
+            Map<String, Object> config;
+
+            String latestRelease = DurNotifyClient.LATEST_RELEASE;
+
+            if (latestRelease != null && !updateNotified[0] && (new Version(DurNotifyClient.CURRENT_VERSION).compareTo(new Version(latestRelease))) < 0) {
+                e.player.sendMessage(Text.translatable("title.durnotify.new_ver", Text.of("https://modrinth.com/project/dur-notify").copy().setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/project/dur-notify")).withUnderline(true))));
+
+                updateNotified[0] = true;
+            }
 
             NbtCompound nbt = item.getNbt();
-            NbtCompound nbt1 = arm1.getNbt();
-            NbtCompound nbt2 = arm2.getNbt();
-            NbtCompound nbt3 = arm3.getNbt();
-            NbtCompound nbt4 = arm4.getNbt();
 
             if (item.isDamageable() && nbt != null && (item.getItem().getMaxDamage() - item.getDamage()) <= getLowDurValue(item) && !nbt.getBoolean("notified")) {
-                e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
+                config = serializer.load();
 
-                e.player.sendMessage(Text.translatable("title.durnotify.warn").formatted(Formatting.RED), true);
+                e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), SoundCategory.MASTER, 1, 2);
+
+                e.player.sendMessage(Text.of((String) config.get("warn_message")).copy().formatted(Formatting.RED), (Boolean) config.get("warn_into_actionbar"));
 
                 nbt.putBoolean("notified", true);
 
@@ -75,75 +86,52 @@ public class DurNotifyClient implements ClientModInitializer {
                 item.setNbt(nbt);
             }
 
-            if (arm1.isDamageable() && nbt1 != null && (arm1.getItem().getMaxDamage() - arm1.getDamage()) <= getLowDurValue(arm1) && !nbt1.getBoolean("notified")) {
-                e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
+            boolean notified = false;
 
-                e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
+            for (ItemStack itemStack : armor) {
+                NbtCompound nbtArm = itemStack.getNbt();
 
-                nbt1.putBoolean("notified", true);
+                if (!itemStack.isEmpty() && itemStack.isDamageable() && nbtArm != null && (itemStack.getItem().getMaxDamage() - itemStack.getDamage()) <= getLowDurValue(itemStack) && !nbtArm.getBoolean("notified")) {
+                    if (!notified) {
+                        config = serializer.load();
 
-                arm1.setNbt(nbt1);
-            } else if (arm1.isDamageable() && nbt1 != null && (arm1.getItem().getMaxDamage() - arm1.getDamage()) > getLowDurValue(arm1)) {
-                nbt1.putBoolean("notified", false);
+                        e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), SoundCategory.MASTER, 1, 2);
 
-                arm1.setNbt(nbt1);
-            }
+                        e.player.sendMessage(Text.of((String) config.get("warn_armor_message")).copy().formatted(Formatting.RED), (Boolean) config.get("warn_into_actionbar"));
+                    }
 
-            if (arm2.isDamageable() && nbt2 != null && (arm2.getItem().getMaxDamage() - arm2.getDamage()) <= getLowDurValue(arm2) && !nbt2.getBoolean("notified")) {
-                e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
+                    nbtArm.putBoolean("notified", true);
 
-                e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
+                    itemStack.setNbt(nbtArm);
 
-                nbt2.putBoolean("notified", true);
+                    notified = true;
+                } else if (itemStack.isDamageable() && nbtArm != null && (itemStack.getItem().getMaxDamage() - itemStack.getDamage()) > getLowDurValue(itemStack)) {
+                    nbtArm.putBoolean("notified", false);
 
-                arm2.setNbt(nbt2);
-            } else if (arm2.isDamageable() && nbt2 != null &&(arm2.getItem().getMaxDamage() - arm2.getDamage()) > getLowDurValue(arm2)) {
-                nbt2.putBoolean("notified", false);
-
-                arm2.setNbt(nbt2);
-            }
-
-            if (arm3.isDamageable() && nbt3 != null && (arm3.getItem().getMaxDamage() - arm3.getDamage()) <= getLowDurValue(arm3) && !nbt3.getBoolean("notified")) {
-                e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
-
-                e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
-
-                nbt3.putBoolean("notified", true);
-
-                arm3.setNbt(nbt3);
-            } else if (arm3.isDamageable() && nbt3 != null && (arm3.getItem().getMaxDamage() - arm3.getDamage()) > getLowDurValue(arm3)) {
-                nbt3.putBoolean("notified", false);
-
-                arm3.setNbt(nbt3);
-            }
-
-            if (arm4.isDamageable() && nbt4 != null && (arm4.getItem().getMaxDamage() - arm4.getDamage()) <= getLowDurValue(arm4) && !nbt4.getBoolean("notified")) {
-                e.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1, 2);
-
-                e.player.sendMessage(Text.translatable("title.durnotify.warn_armor").formatted(Formatting.RED), true);
-
-                nbt4.putBoolean("notified", true);
-
-                arm4.setNbt(nbt4);
-            } else if (arm4.isDamageable() && nbt4 != null && (arm4.getItem().getMaxDamage() - arm4.getDamage()) > getLowDurValue(arm4)) {
-                nbt4.putBoolean("notified", false);
-
-                arm4.setNbt(nbt4);
+                    itemStack.setNbt(nbtArm);
+                }
             }
         });
     }
 
     private int getLowDurValue(ItemStack stack) {
+        Map<String, Object> config = serializer.load();
         int maxDamage = stack.getItem().getMaxDamage();
 
-        if (maxDamage < 50) return 15;
-        if (maxDamage < 100) return 50;
-        if (maxDamage < 200) return 100;
-        else return 150;
+        if (maxDamage < 50) return Util.integerOrDouble(config.get("warn_max_under_50"));
+
+        else if (maxDamage < 100) return Util.integerOrDouble(config.get("warn_max_under_100"));
+
+        else if (maxDamage < 200) return Util.integerOrDouble(config.get("warn_max_under_200"));
+
+        else return Util.integerOrDouble(config.get("warn_max_above_200"));
     }
 
     private static String getLatestRelease() throws IOException {
         URL url = new URL(MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version");
+        String releaseType;
+
+        releaseType = "release";
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -166,71 +154,7 @@ public class DurNotifyClient implements ClientModInitializer {
 
             for (Object ver : map) {
                 if (ver instanceof Map version) {
-                    if (version.get("version_type").equals("release")) return (String) version.get("version_number");
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static String getLatestBeta() throws IOException {
-        URL url = new URL(MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version");
-
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setDoOutput(true);
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        StringBuilder sb = new StringBuilder();
-        String line;
-
-        while((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-
-        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            Gson gson = new Gson();
-
-            java.util.List map = gson.fromJson(sb.toString(), java.util.List.class);
-
-            for (Object ver : map) {
-                if (ver instanceof Map version) {
-                    if (version.get("version_type").equals("beta")) return (String) version.get("version_number");
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static String getLatestAlpha() throws IOException {
-        URL url = new URL(MODRINTH_API_ROUTE + "project/" + MOD_SLUG + "/version");
-
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-        con.setRequestMethod("GET");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setDoOutput(true);
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        StringBuilder sb = new StringBuilder();
-        String line;
-
-        while((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-
-        if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            Gson gson = new Gson();
-
-            java.util.List map = gson.fromJson(sb.toString(), java.util.List.class);
-
-            for (Object ver : map) {
-                if (ver instanceof Map version) {
-                    if (version.get("version_type").equals("alpha")) return (String) version.get("version_number");
+                    if (version.get("version_type").equals(releaseType)) return (String) version.get("version_number");
                 }
             }
         }

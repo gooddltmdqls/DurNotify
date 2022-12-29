@@ -7,13 +7,20 @@
   "authors": [
     "Icetang0123"
   ],
-  "contact": {},
+  "contact": {
+    "homepage": "https://github.com/gooddltmdqls/DurNotify#readme",
+    "sources": "https://github.com/gooddltmdqls/DurNotify",
+    "issues": "https://github.com/gooddltmdqls/DurNotify/issues"
+  },
   "license": "MIT",
   "icon": "assets/durnotify/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
       "kr.icetang0123.durnotify.client.DurNotifyClient"
+    ],
+    "modmenu": [
+      "kr.icetang0123.durnotify.client.config.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -22,6 +29,15 @@
   "depends": {
     "fabricloader": ">=0.14.6",
     "fabric": "*",
-    "minecraft": "1.19.2"
+    "minecraft": "1.19.3",
+    "cloth-config": "8.2.88"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/project/dur-notify",
+        "modmenu.curseforge": "https://www.curseforge.com/minecraft/mc-mods/durnotify"
+      }
+    }
   }
 }

@@ -1,5 +1,23 @@
 {
   "title.durnotify.warn": "Low dur!",
-  "title.durnotify.warn_armor": "Low dur: arms!",
-  "title.durnotify.new_ver": "A wild new version of DurNotify appeared! Download it from Modrinth! %s"
+  "title.durnotify.warn_armor": "Low armor dur!",
+  "title.durnotify.new_ver": "A wild new version of DurNotify appeared! Download it from Modrinth! %s",
+  "title.durnotify.config": "DurNotify config",
+  "title.durnotify.config_messages": "Notification messages",
+  "title.durnotify.config_constants": "Constants",
+  "config.durnotify.warn_message": "Low durability message",
+  "config.durnotify.warn_armor_message": "Low armor durability message",
+  "config.durnotify.warn_into_actionbar": "Send message under cross-hairs",
+  "config.durnotify.warn_max_under_50": "When max durability is less than 50",
+  "config.durnotify.warn_max_under_100": "When max durability is less than 100",
+  "config.durnotify.warn_max_under_200": "When max durability is less than 200",
+  "config.durnotify.warn_max_above_200": "When max durability is higher than 200",
+  "tooltip.durnotify.warn_message": "This message is sent when the durability of a weapon or tool is low.",
+  "tooltip.durnotify.warn_armor_message": "This message is sent when the durability of a armor is low.",
+  "tooltip.durnotify.warn_into_actionbar.line1": "Toggles whether or not to send a warning message under the cross-hairs.",
+  "tooltip.durnotify.warn_into_actionbar.line2": "If the value is No, a warning message is sent to the chat.",
+  "tooltip.durnotify.warn_max_under_50": "The trigger durability when max durability is less than 50",
+  "tooltip.durnotify.warn_max_under_100": "The trigger durability when max durability is less than 100",
+  "tooltip.durnotify.warn_max_under_200": "The trigger durability when max durability is less than 200",
+  "tooltip.durnotify.warn_max_above_200": "The trigger durability when max durability is higher than 200"
 }

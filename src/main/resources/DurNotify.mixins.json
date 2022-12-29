@@ -6,7 +6,6 @@
   "mixins": [
   ],
   "client": [
-    "PlayerJoinMixin"
   ],
   "injectors": {
     "defaultRequire": 1

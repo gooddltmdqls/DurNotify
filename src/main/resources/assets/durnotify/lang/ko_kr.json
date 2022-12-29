@@ -1,5 +1,21 @@
 {
-  "title.durnotify.warn": "내구도가 낮습니다!",
-  "title.durnotify.warn_armor": "갑옷의 내구도가 낮습니다!",
-  "title.durnotify.new_ver": "앗! 야생의 새로운 DurNotify(이)가 나타났다! Modrinth 에서 다운로드하자! %s"
+  "title.durnotify.new_ver": "앗! 야생의 새로운 DurNotify(이)가 나타났다! Modrinth 에서 다운로드하자! %s",
+  "title.durnotify.config": "DurNotify 설정",
+  "title.durnotify.config_messages": "알림 메시지",
+  "config.durnotify.warn_message": "내구도 부족 메시지",
+  "title.durnotify.config_constants": "상수",
+  "config.durnotify.warn_armor_message": "갑옷 내구도 부족 메시지",
+  "config.durnotify.warn_into_actionbar": "십자선 아래에 경고 메시지 전송",
+  "config.durnotify.warn_max_under_50": "최대 내구도가 50보다 낮을 때",
+  "config.durnotify.warn_max_under_100": "최대 내구도가 100보다 낮을 때",
+  "config.durnotify.warn_max_under_200": "최대 내구도가 200보다 낮을 때",
+  "config.durnotify.warn_max_above_200": "최대 내구도가 200보다 클 때",
+  "tooltip.durnotify.warn_message": "무기, 도구의 내구도가 낮을 때 전송될 메시지입니다.",
+  "tooltip.durnotify.warn_armor_message": "갑옷의 내구도가 낮을 때 전송될 메시지입니다.",
+  "tooltip.durnotify.warn_into_actionbar.line1": "십자선 아래에 경고 메시지를 전송할지 여부를 전환합니다.",
+  "tooltip.durnotify.warn_into_actionbar.line2": "만약 값이 아니요라면 채팅에 전송됩니다.",
+  "tooltip.durnotify.warn_max_under_50": "최대 내구도가 50보다 낮을 때 알림이 표시될 내구도",
+  "tooltip.durnotify.warn_max_under_100": "최대 내구도가 100보다 낮을 때 알림이 표시될 내구도",
+  "tooltip.durnotify.warn_max_under_200": "최대 내구도가 200보다 낮을 때 알림이 표시될 내구도",
+  "tooltip.durnotify.warn_max_above_200": "최대 내구도가 200보다 클 때 알림이 표시될 내구도"
 }

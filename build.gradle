@@ -8,7 +8,8 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/releases/" }
 }
 
 dependencies {
@@ -19,6 +20,14 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modApi "me.shedaniel.cloth:cloth-config-fabric:8.2.88", {
+        exclude module: 'fabric-api'
+    }
+    include "me.shedaniel.cloth:cloth-config-fabric:8.2.88"
+
+    modApi "com.terraformersmc:modmenu:4.0.6"
+    include "com.terraformersmc:modmenu:4.0.6"
 }
 
 processResources {
@@ -54,18 +63,15 @@ java {
     withSourcesJar()
 }
 
-shadowJar {
-    archiveBaseName.set('shadow')
-    archiveClassifier.set('')
-    archiveVersion.set('')
-}
-
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
 
-    dependsOn shadowJar
+    finalizedBy shadowJar
+    manifest {
+        attributes 'Main-Class': 'kr.icetang0123.durnotify.client.DurNotifyClient'
+    }
 }
 
 // configure the maven publication
@@ -83,4 +89,10 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
